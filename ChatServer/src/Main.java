@@ -55,7 +55,7 @@ public class Main extends Application {
 						Socket socket = serverSocket.accept();
 						clients.add(new Client(socket));
 						Platform.runLater(() -> {
-							String message = String.format("%s 가 입장했습니다.", socket.getRemoteSocketAddress().toString());
+							String message = String.format("%s is entered.\n", socket.getRemoteSocketAddress().toString());
 							textArea.appendText(message);
 						});
 						System.out.println(socket.getRemoteSocketAddress() + ": " + Thread.currentThread().getName());
@@ -143,7 +143,7 @@ public class Main extends Application {
 			}
 		});
 		
-		Scene scene = new Scene(root, 1080, 760);
+		Scene scene = new Scene(root, 400, 550);
 		primaryStage.setTitle("Chat Server");
 		primaryStage.setOnCloseRequest(event -> endServer());
 		primaryStage.setScene(scene);

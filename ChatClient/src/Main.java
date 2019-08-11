@@ -12,20 +12,15 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.stage.Stage;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
 
 
 public class Main extends Application {
 	
 	Socket socket;
 	TextArea textArea;
-	Scene loginScene, chattingScene;
+	Scene loginScene, chattingScene, signupScene;
 	
 	
 	// 클라이언트 실행 메소드
@@ -120,20 +115,101 @@ public class Main extends Application {
 	public void setLoginScene()
 	{
 		window = new Stage();
+		window.setTitle("Welcome RanChat");
 		
 		GridPane grid = new GridPane();
 		grid.setAlignment(Pos.CENTER);
+		grid.setVgap(10);
+		grid.setHgap(10);
+		grid.setPadding(new Insets(5));
 		
-		Button loginBtn = new Button("login");
-		grid.add(loginBtn, 0, 0);
+		GridPane btnGrid = new GridPane();
+		btnGrid.setAlignment(Pos.CENTER_RIGHT);
+		btnGrid.setHgap(20);
+		btnGrid.setPadding(new Insets(1));
+		
+		Label lbUserID = new Label("User ID");
+		grid.add(lbUserID, 0, 1);
+		
+		TextField txtUserID = new TextField();
+		txtUserID.setPromptText("Set your ID");
+		grid.add(txtUserID, 1, 1);
+		
+		Label lbUserPW = new Label("User PW");
+		grid.add(lbUserPW, 0, 2);
+		
+		PasswordField txtUserPW = new PasswordField();
+		txtUserPW.setPromptText("Set your password");
+		grid.add(txtUserPW, 1, 2);
+		
+		Button loginBtn = new Button("Sign in");
+		Button signupBtn = new Button("Sign up");
+		btnGrid.add(loginBtn, 1, 0);
+		btnGrid.add(signupBtn, 0, 0);
+		
+		grid.add(btnGrid, 1, 3);
 		
 		loginBtn.setOnAction(event -> {
 			window.setScene(chattingScene);
 		});
-		loginScene = new Scene(grid, 760, 480);
-		window.setScene(loginScene);
 		
+		signupBtn.setOnAction(event -> {
+			window.setScene(signupScene);
+		});
+		
+		loginScene = new Scene(grid, 480, 480);
+		window.setScene(loginScene);
 	}
+	
+	public void setSignupScene()
+	{
+		window = new Stage();
+		window.setTitle("Welcome RanChat");
+		
+		GridPane grid = new GridPane();
+		grid.setAlignment(Pos.CENTER);
+		grid.setVgap(10);
+		grid.setHgap(10);
+		grid.setPadding(new Insets(5));
+		
+		GridPane btnGrid = new GridPane();
+		btnGrid.setAlignment(Pos.CENTER_RIGHT);
+		btnGrid.setPadding(new Insets(0));
+		
+		Label lbUserID = new Label("User ID");
+		grid.add(lbUserID, 0, 1);
+		
+		TextField txtUserID = new TextField();
+		txtUserID.setPromptText("Set your ID");
+		grid.add(txtUserID, 1, 1);
+		
+		Label lbUserPW = new Label("User PW");
+		grid.add(lbUserPW, 0, 2);
+		
+		PasswordField txtUserPW = new PasswordField();
+		txtUserPW.setPromptText("Set your password");
+		grid.add(txtUserPW, 1, 2);
+		
+		Label lbUserName = new Label("User Name");
+		grid.add(lbUserName, 0, 3);
+		
+		TextField txtUserName = new TextField();
+		txtUserName.setPromptText("Set your Name");
+		grid.add(txtUserName, 1, 3);
+		
+		Button signupBtn = new Button("Sign up");
+		btnGrid.add(signupBtn, 0, 0);
+		
+		signupBtn.setOnAction(event -> {
+			window.setScene(loginScene);
+		});
+		
+		grid.add(btnGrid, 1, 4);
+		
+		signupScene = new Scene(grid, 480, 480);
+		window.setScene(signupScene);
+	}
+	
 	public void setChattingScene()
 	{
 		window = new Stage();
@@ -158,7 +234,6 @@ public class Main extends Application {
 				
 		TextField input = new TextField();
 		input.setPrefWidth(Double.MAX_VALUE);
-		input.setDisable(true);
 				
 		input.setOnAction(event -> {
 			send(userName.getText() + ": " + input.getText() + "\n");
@@ -167,7 +242,6 @@ public class Main extends Application {
 		});
 				
 		Button sendButton = new Button("Send");
-		sendButton.setDisable(true);
 				
 		sendButton.setOnAction(event->{
 			send(userName.getText() + ": " + input.getText() + "\n");
@@ -175,43 +249,7 @@ public class Main extends Application {
 			input.requestFocus();
 		});
 				
-		Button connectionButton = new Button("Connect");
-		connectionButton.setOnAction(event -> {
-			if (connectionButton.getText().equals("Connect"))
-			{
-				String IP = new String("127.0.0.1");
-				int port = 9000;
-				try
-				{
-					
-				}
-				catch(Exception e)
-				{
-					e.printStackTrace();
-				}
-				beginClient(IP, port);
-				Platform.runLater(() -> {
-					textArea.appendText("connect completely\n");
-				});
-				connectionButton.setText("Disconnect");
-				input.setDisable(false);
-				sendButton.setDisable(false);
-				input.requestFocus();
-			}
-			else
-			{
-				endClient();
-				Platform.runLater(()-> {
-					textArea.appendText("disconnect completely\n");
-				});
-				connectionButton.setText("Connect");
-				input.setDisable(true);
-				sendButton.setDisable(true);
-			}
-		});
-				
 		BorderPane pane = new BorderPane();
-		pane.setLeft(connectionButton);
 		pane.setCenter(input);
 		pane.setRight(sendButton);
 				
@@ -219,15 +257,15 @@ public class Main extends Application {
 		chattingScene = new Scene(root, 760, 480);
 		window.setTitle("Chat Client");
 		window.setOnCloseRequest(event -> endClient());
-				
-		connectionButton.requestFocus();
 	}
 	
 	@Override
 	public void start(Stage primaryStage) {
+		beginClient(new String("127.0.0.1"), 9000);
 		
 		// Draw Scene
 		setChattingScene();
+		setSignupScene();
 		setLoginScene();
 		
 		window.show();

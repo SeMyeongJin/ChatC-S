@@ -5,8 +5,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 
-import javafx.application.Platform;
-
 public class Client {
 
 	Socket socket;
@@ -29,7 +27,7 @@ public class Client {
 					while(true)
 					{
 						InputStream in = socket.getInputStream();
-						byte[] buf = new byte[512];
+						byte[] buf = new byte[256];
 						int len = in.read(buf);
 						while(len == -1) throw new IOException();
 						System.out.println(socket.getRemoteSocketAddress() + ": " + Thread.currentThread().getName());
