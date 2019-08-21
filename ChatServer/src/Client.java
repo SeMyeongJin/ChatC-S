@@ -8,6 +8,7 @@ import java.net.Socket;
 public class Client {
 
 	Socket socket;
+	GameRoom room;
 	
 	public Client(Socket socket)
 	{
@@ -84,5 +85,25 @@ public class Client {
 			}
 		};
 		Main.thrPool.submit(thread);
+	}
+	
+	public void enterRoom(GameRoom room)
+	{
+		this.room = room;
+	}
+	
+	public void exitRoom()
+	{
+		this.room = null;
+	}
+	
+	public GameRoom getRoom()
+	{
+		return room;
+	}
+	
+	public void setRoom(GameRoom room)
+	{
+		this.room = room;
 	}
 }
