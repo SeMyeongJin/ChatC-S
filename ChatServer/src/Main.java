@@ -1,3 +1,4 @@
+
 package application;
 	
 import java.net.InetSocketAddress;
@@ -21,137 +22,157 @@ import javafx.scene.text.Font;
 
 public class Main extends Application {
 	
-	public static ExecutorService thrPool;
+    // ExecutorService는 여러개의 스레드를 효율적으로 관리하게 해주는 대표적인 라이브러리. 한정된 자원으로 안정적으로 서버를 사용하기 위해 스레드풀 사용
+	public static ExecutorService threadPool;
 	public static Vector<Client> clients = new Vector<Client>();
 	
 	ServerSocket serverSocket;
 	TextArea textArea;
-	// 서버 프로그램 실행
-	public void beginServer(String IP, int port)
+	Client cli;
+	
+	// 서버를 구동시켜서 클라이언트의 연결을 기다리는 메소드
+	public void startServer(String IP,int port)
 	{
-		try
+		RoomManager.createRoom();
+		
+		try 
 		{
-			serverSocket = new ServerSocket();
-			serverSocket.bind(new InetSocketAddress(IP, port));
-		}
-		catch (Exception e)
+			serverSocket = new ServerSocket();    // 서버에서 클라 받을 소켓 생성
+			serverSocket.bind(new InetSocketAddress(IP,port));   // 주소 bind
+		} 
+		catch(Exception e) 
 		{
 			e.printStackTrace();
-			if (!serverSocket.isClosed())
+			if(!serverSocket.isClosed()) 
 			{
-				endServer();
+				stopServer();
 			}
 			return;
 		}
 		
-		Runnable thread = new Runnable()
+		//클라이언트가 접속할 때까지 계속 기다리는 스레드
+		Runnable thread = new Runnable() 
 		{
+			@Override
 			public void run() 
-			{
-				while(true)
+			{ 
+				while(true) 
 				{
-					try
+					try 
 					{
 						Socket socket = serverSocket.accept();
-						clients.add(new Client(socket));
+						cli = new Client(socket);
+						clients.add(cli);   //클라이언트 배열에 새롭게 접속한 클라이언트 추가시킴
+					 
 						Platform.runLater(() -> {
-							String message = String.format("%s is entered.\n", socket.getRemoteSocketAddress().toString());
-							textArea.appendText(message);
-						});
-						System.out.println(socket.getRemoteSocketAddress() + ": " + Thread.currentThread().getName());
-					}
-					catch(Exception e)
+		                     String message = String.format("%s 가 입장했습니다.\n", socket.getRemoteSocketAddress().toString());
+		                     textArea.appendText(message);
+		                  });
+
+						System.out.println("[클라이언트 접속]" + socket.getRemoteSocketAddress()+ ": " + Thread.currentThread().getName());
+					} 
+					catch(Exception e) 
 					{
-						if (!serverSocket.isClosed())
+						e.printStackTrace();
+						if(!serverSocket.isClosed()) 
 						{
-							endServer();
+							stopServer();
 						}
 						break;
 					}
 				}
 			}
 		};
-		thrPool = Executors.newCachedThreadPool();
-		thrPool.submit(thread);
+		threadPool = Executors.newCachedThreadPool();  //스레드풀 초기화
+		threadPool.submit(thread);
 	}
-	
-	// 서버 프로그램 종료
-	public void endServer()
+
+	// 서버의 작동을 중지시키는 메소드
+	public void stopServer()
 	{
-		try
+		try 
 		{
-			Iterator<Client> iter = clients.iterator();
-			while (iter.hasNext())
+			//현재 작동 중인 모든 소켓 닫기
+			Iterator<Client> iterator = clients.iterator();
+			while(iterator.hasNext()) 
 			{
-				Client client = iter.next();
+				Client client = iterator.next();
 				client.socket.close();
-				iter.remove();
+				iterator.remove();
 			}
-			if (serverSocket != null && !serverSocket.isClosed())
+			// 서버 소켓 객체 닫기
+			if(serverSocket != null && !serverSocket.isClosed()) 
 			{
 				serverSocket.close();
 			}
-			if (thrPool != null && !thrPool.isShutdown())
+			//쓰레드 풀 종료하기
+			if(threadPool != null && !threadPool.isShutdown()) 
 			{
-				thrPool.shutdown();
+				threadPool.isShutdown();
 			}
-		}
-		catch (Exception e)
+		} 
+		catch (Exception e) 
 		{
 			e.printStackTrace();
 		}
 	}
 	
-	// UI
+	// UI를 생성하고, 실질적으로 프로그램을 동작시키는 메소드
 	@Override
 	public void start(Stage primaryStage) 
 	{
 		BorderPane root = new BorderPane();
 		root.setPadding(new Insets(5));
 		
-		textArea = new TextArea();
+	    textArea = new TextArea();
 		textArea.setEditable(false);
-		textArea.setFont(new Font("나눔 고딕", 12));
+		textArea.setFont(new Font("나눔고딕", 15));
 		root.setCenter(textArea);
 		
-		Button toggleButton = new Button("Start");
+		Button toggleButton = new Button("종료하기");
 		toggleButton.setMaxWidth(Double.MAX_VALUE);
-		BorderPane.setMargin(toggleButton, new Insets(1, 0, 0, 0));
+		BorderPane.setMargin(toggleButton, new Insets(1,0,0,0));
 		root.setBottom(toggleButton);
 		
 		String IP = "127.0.0.1";
 		int port = 9000;
 		
-		toggleButton.setOnAction(event -> {
-			if (toggleButton.getText().equals("Start"))
+		startServer(IP,port);
+		Platform.runLater(()->{     
+			String message = String.format("[서버 시작]\n",IP,port);
+			textArea.appendText(message);
+		});
+		
+		toggleButton.setOnAction(event->{
+			if(toggleButton.getText().equals("종료하기")) 
 			{
-				beginServer(IP, port);
-				Platform.runLater(() -> {
-					String message = String.format("Chat Server Start\n", IP, port);
+				stopServer();
+				Platform.runLater(()->{     //javafx는 버튼을 눌렀을때 바로 텍스트를 쓰게 하면 안됨-> runLAter함수 사용
+					String message = String.format("[서버 종료]\n",IP,port);
 					textArea.appendText(message);
-					toggleButton.setText("End");
+					toggleButton.setText("시작하기");   //토글버튼을 종료하기로 바꿈
 				});
-			}
-			else
+			} 
+			else 
 			{
-				endServer();
-				Platform.runLater(() -> {
-					String message = String.format("Chat Server End\n", IP, port);
+				startServer(IP,port);
+				Platform.runLater(()->{     //javafx는 버튼을 눌렀을때 바로 텍스트를 쓰게 하면 안됨-> runLAter함수 사용
+					String message = String.format("[서버 시작]\n",IP,port);
 					textArea.appendText(message);
-					toggleButton.setText("Start");
+					toggleButton.setText("종료하기");
 				});
 			}
 		});
 		
-		Scene scene = new Scene(root, 400, 550);
-		primaryStage.setTitle("Chat Server");
-		primaryStage.setOnCloseRequest(event -> endServer());
+		Scene scene = new Scene(root, 400, 400);
+		primaryStage.setTitle("[채팅 서버]");
+		primaryStage.setOnCloseRequest(event -> stopServer());
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}
 	
-	public static void main(String[] args) 
-	{
+	// 프로그램의 진입점
+	public static void main(String[] args) {
 		launch(args);
 	}
 }

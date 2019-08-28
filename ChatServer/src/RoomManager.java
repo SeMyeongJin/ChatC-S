@@ -14,9 +14,10 @@ public class RoomManager {
     {
     	for (int i = 0; i < MAXROOMNUM; i++)
     	{
-    		GameRoom room = new GameRoom(i+1);
+    		GameRoom room = new GameRoom(i);
     		
     		rooms.add(room);
     	}
+    	System.out.println("create 100 rooms of game completely\n");
     }
 }
