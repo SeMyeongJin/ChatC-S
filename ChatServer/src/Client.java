@@ -54,14 +54,27 @@ public class Client {
 						switch(protocol)
 						{
 						case MessageProtocol.LOGIN:{
-							//데베 맞으면
+							String name = DBManager.login(msg.getString(), msg.getString());
+							
 							MessagePacker reMsg = new MessagePacker();
 							reMsg.SetEndianType(ByteOrder.BIG_ENDIAN);
 							reMsg.SetProtocol(MessageProtocol.LOGIN_SUCC);
+							reMsg.add(name);
 							byte[] message = reMsg.Finish();
 							send(message);
 							break;
 						 }
+						case MessageProtocol.SIGNUP:{
+							if (DBManager.signup(msg.getString(), msg.getString(), msg.getString()))
+							{
+								MessagePacker reMsg = new MessagePacker();
+								reMsg.SetEndianType(ByteOrder.BIG_ENDIAN);
+								reMsg.SetProtocol(MessageProtocol.SIGNUP_SUCC);
+								byte[] message = reMsg.Finish();
+								send(message);
+								break;
+							}
+						}
 						case MessageProtocol.ROOM1:{
 							RoomManager.rooms.get(0).enterRoom(cli,0);
 							MessagePacker reMsg = new MessagePacker();
@@ -82,6 +95,51 @@ public class Client {
 						 }
 						case MessageProtocol.ROOM3:{
 							RoomManager.rooms.get(2).enterRoom(cli,2);
+							MessagePacker reMsg = new MessagePacker();
+							reMsg.SetEndianType(ByteOrder.BIG_ENDIAN);
+							reMsg.SetProtocol(MessageProtocol.ROOMENTER);
+							byte[] message = reMsg.Finish();
+							send(message);
+							break;
+						 }
+						case MessageProtocol.ROOM4:{
+							RoomManager.rooms.get(3).enterRoom(cli,3);
+							MessagePacker reMsg = new MessagePacker();
+							reMsg.SetEndianType(ByteOrder.BIG_ENDIAN);
+							reMsg.SetProtocol(MessageProtocol.ROOMENTER);
+							byte[] message = reMsg.Finish();
+							send(message);
+							break;
+						 }
+						case MessageProtocol.ROOM5:{
+							RoomManager.rooms.get(4).enterRoom(cli,4);
+							MessagePacker reMsg = new MessagePacker();
+							reMsg.SetEndianType(ByteOrder.BIG_ENDIAN);
+							reMsg.SetProtocol(MessageProtocol.ROOMENTER);
+							byte[] message = reMsg.Finish();
+							send(message);
+							break;
+						 }
+						case MessageProtocol.ROOM6:{
+							RoomManager.rooms.get(5).enterRoom(cli,5);
+							MessagePacker reMsg = new MessagePacker();
+							reMsg.SetEndianType(ByteOrder.BIG_ENDIAN);
+							reMsg.SetProtocol(MessageProtocol.ROOMENTER);
+							byte[] message = reMsg.Finish();
+							send(message);
+							break;
+						 }
+						case MessageProtocol.ROOM7:{
+							RoomManager.rooms.get(6).enterRoom(cli,6);
+							MessagePacker reMsg = new MessagePacker();
+							reMsg.SetEndianType(ByteOrder.BIG_ENDIAN);
+							reMsg.SetProtocol(MessageProtocol.ROOMENTER);
+							byte[] message = reMsg.Finish();
+							send(message);
+							break;
+						 }
+						case MessageProtocol.ROOM8:{
+							RoomManager.rooms.get(7).enterRoom(cli,7);
 							MessagePacker reMsg = new MessagePacker();
 							reMsg.SetEndianType(ByteOrder.BIG_ENDIAN);
 							reMsg.SetProtocol(MessageProtocol.ROOMENTER);

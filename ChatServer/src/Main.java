@@ -29,11 +29,12 @@ public class Main extends Application {
 	ServerSocket serverSocket;
 	TextArea textArea;
 	Client cli;
-	
+
 	// 서버를 구동시켜서 클라이언트의 연결을 기다리는 메소드
 	public void startServer(String IP,int port)
 	{
 		RoomManager.createRoom();
+		DBManager.initDB();
 		
 		try 
 		{
@@ -129,7 +130,7 @@ public class Main extends Application {
 		textArea.setFont(new Font("나눔고딕", 15));
 		root.setCenter(textArea);
 		
-		Button toggleButton = new Button("종료하기");
+		Button toggleButton = new Button("End Ran Chat Server");
 		toggleButton.setMaxWidth(Double.MAX_VALUE);
 		BorderPane.setMargin(toggleButton, new Insets(1,0,0,0));
 		root.setBottom(toggleButton);
@@ -139,33 +140,33 @@ public class Main extends Application {
 		
 		startServer(IP,port);
 		Platform.runLater(()->{     
-			String message = String.format("[서버 시작]\n",IP,port);
+			String message = String.format("Start ran chat server\n",IP,port);
 			textArea.appendText(message);
 		});
 		
 		toggleButton.setOnAction(event->{
-			if(toggleButton.getText().equals("종료하기")) 
+			if(toggleButton.getText().equals("End Ran Chat Server")) 
 			{
 				stopServer();
 				Platform.runLater(()->{     //javafx는 버튼을 눌렀을때 바로 텍스트를 쓰게 하면 안됨-> runLAter함수 사용
-					String message = String.format("[서버 종료]\n",IP,port);
+					String message = String.format("End ran chat server\n",IP,port);
 					textArea.appendText(message);
-					toggleButton.setText("시작하기");   //토글버튼을 종료하기로 바꿈
+					toggleButton.setText("Start Ran Chat Server");   //토글버튼을 종료하기로 바꿈
 				});
 			} 
 			else 
 			{
 				startServer(IP,port);
 				Platform.runLater(()->{     //javafx는 버튼을 눌렀을때 바로 텍스트를 쓰게 하면 안됨-> runLAter함수 사용
-					String message = String.format("[서버 시작]\n",IP,port);
+					String message = String.format("Start ran chat server\n",IP,port);
 					textArea.appendText(message);
-					toggleButton.setText("종료하기");
+					toggleButton.setText("End ran chat server\n");
 				});
 			}
 		});
 		
 		Scene scene = new Scene(root, 400, 400);
-		primaryStage.setTitle("[채팅 서버]");
+		primaryStage.setTitle("Ran Chat Server");
 		primaryStage.setOnCloseRequest(event -> stopServer());
 		primaryStage.setScene(scene);
 		primaryStage.show();
